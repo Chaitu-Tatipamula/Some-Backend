@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade balance fetcher</title>
+</head>
+<style>
+  .ok {
+    color: green;
+  }
+  .notok {
+    color: red;
+  }
+</style>
+<body>
+  <h1>Upload CSV File</h1>
+  <form id="csvUpload" enctype="multipart/form-data">
+    <input type="file" id="file" name="file" accept=".csv" required>
+    <button type="submit">Upload</button>
+  </form>
+  <p id="response" ></p><br><hr>
+  <div>
+    <h3>/balance/json</h3>
+    <p>Use /balance/json if you want to give timestamp (JSON) as body</p>
+    <h3>/balance?timestamp=2022-09-28%2012:00:00</h3>
+    <p>Use /balance?timestamp= if you want to use query parameter</p>
+    <h3>/upload</h3>
+    <p>Use /upload to upload CSV file to the database by creating a readstream</p>
+  </div>
+  </body>
+  <script>
+    document.getElementById('csvUpload').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData();
+      const fields = document.getElementById('file');
+
+      formData.append('file', fields.files[0]);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.text();
+        const message = document.getElementById('response');
+        if (response.ok) {
+          message.textContent = result;
+          message.className = 'ok';
+        } else {
+          message.textContent = 'ERROR: ' + result;
+          message.className = 'notok';
+        }
+      } catch (error) {
+        const message = document.getElementById('response');
+        message.textContent = 'ERROR: ' + error.message;
+        message.className = 'notok';
+      }
+    });
+  </script>
+</body>
+</html>
